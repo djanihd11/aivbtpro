@@ -1,0 +1,57 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Definiert einen Service namens 'jupyter-ai-cpu-env'
+  jupyter-ai-cpu-env:
+    # Weist Docker an, das Image aus der aktuellen Dockerfile zu bauen
+    build: .
+    # Legt einen eindeutigen Namen für den Container fest
+    container_name: jupyter-ai-ollama-gemini-hf-cpu
+
+    # Port-Mapping: Host-Port:Container-Port
+    # Zugriff auf JupyterLab über http://localhost:8888
+    # Zugriff auf die Ollama API über http://localhost:11434
+    ports:
+      - "8888:8888"
+      - "11434:11434"
+
+    # Umgebungsvariablen, die an den Container übergeben werden
+    environment:
+      # Dein Google Gemini API-Schlüssel
+      # WICHTIG: Verwende hier deinen tatsächlichen API-Schlüssel.
+      # Der angegebene Schlüssel 'AIzaSyAS3rZQuG-rIBVQ7cMMezBiCeQkRFH2bW4' wird hier verwendet.
+      - GOOGLE_API_KEY=AIzaSyAS3rZQuG-rIBVQ7cMMezBiCeQkRFH2bW4
+
+      # Optional: Wenn du den Standard-Speicherort für GPT4All-Modelle ändern möchtest
+      # - GPT4ALL_HOME=/home/jovyan/.cache/gpt4all
+
+      # Optional: Wenn du den Standard-Cache-Pfad für Hugging Face Modelle ändern möchtest
+      # Standard ist ~/.cache/huggingface/hub
+      # - HF_HOME=/home/jovyan/.cache/huggingface
+
+    # Volumes für persistente Daten
+    # Diese stellen sicher, dass deine Daten (Notebooks, LLM-Modelle) nicht verloren gehen,
+    # wenn der Container entfernt oder neu erstellt wird.
+    volumes:
+      # Mountet das 'notebooks'-Verzeichnis deines Hosts in das Arbeitsverzeichnis des Containers.
+      # Hier solltest du deine Jupyter-Notebooks speichern.
+      - ./notebooks:/home/jovyan/work
+      # Mountet ein benanntes Docker-Volume ('ollama_data') in das Ollama-Home-Verzeichnis des Containers.
+      # Hier werden Ollama-Modelle persistent gespeichert.
+      - ollama_data:/root/.ollama
+      # Optional: Mountet ein benanntes Docker-Volume für GPT4All-Modelle.
+      # Aktiviere dies, wenn du GPT4All-Modelle persistent speichern möchtest.
+      # - gpt4all_models:/home/jovyan/.cache/gpt4all
+      # Optional: Mountet ein benanntes Docker-Volume für den Hugging Face Cache.
+      # Aktiviere dies, wenn du große Hugging Face-Modelle persistent speichern möchtest.
+      # - hf_cache:/home/jovyan/.cache/huggingface
+
+    # Erlaubt dem Container, sich automatisch neu zu starten, es sei denn, er wird explizit gestoppt.
+    restart: unless-stopped
+
+# Definiert die benannten Volumes, die von Docker verwaltet werden
+volumes:
+  ollama_data:
+  # gpt4all_models: # Auskommentiert; dekommentieren, um persistentes Volume zu aktivieren
+  # hf_cache:       # Auskommentiert; dekommentieren, um persistentes Volume zu aktivieren
